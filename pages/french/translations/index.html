@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Translation | Mike M. Lin</title>
+    <style>
+      body {
+        font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+        font-size: 15px;
+      }
+      
+      #background {
+        background-color: #F5F5FF;
+        border-left: 1px solid #E5E5EE;
+        bottom: 0;
+        left: 50%;
+        position: fixed;
+        right: 0;
+        top: 0;
+        z-index: -1;
+      }
+      
+      table {
+        margin: auto;
+      }
+      
+      h2 {
+        font-size: 30px;
+        width: 450px;
+      }
+      
+      p {
+        margin: 5px 0;
+        padding: 0;
+        width: 450px;
+      }
+      
+      td {
+        padding: 0 25px;
+        vertical-align: top;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="background"></div>
+    <table>
+      <thead>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-hashchange/v1.3/jquery.ba-hashchange.min.js"></script>
+    <script>
+    
+      $(function() {
+      
+        $(window).hashchange(function() {
+          var path = window.location.hash || "";
+          path = path.substring(path.indexOf('#/') ? 1 : 2) + '.json';
+          console.log(path);
+          $.getJSON(path, function(content) {
+          
+            var $thead = $('thead').empty();
+            var $tbody = $('tbody').empty();
+            
+            for (var i = 0; i < content.length; i = i + 2) {
+              var foreign = content[i];
+              var english = content[i + 1];
+              var $n1 = i ? $('<p>') : $('<h2>');
+              var $n2 = i ? $('<p>') : $('<h2>');
+              var $td1 = $('<td>');
+              var $td2 = $('<td>');
+              var $tr = $('<tr>');
+              
+              foreign ? $n1.text(foreign) : $n1.html('&nbsp;');
+              $n2.text(english);
+              $td1.append($n1);
+              $td2.append($n2);
+              $tr.append($td1, $td2);
+              
+              i ? $tbody.append($tr) : $thead.append($tr);
+            }
+            
+          });
+        });
+        
+        $(window).hashchange();
+      
+      });
+      
+    </script>
+  </body>
+</html>
