@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Email on Payment</title>
+    <style>
+      body {
+        color: #393939;
+        font-family: 'Lucida Grande', Arial, sans-serif;
+        font-size: 13px;
+        margin: 0;
+        padding: 0;
+      }
+      
+      h1 {
+        margin-top: 0;
+      }
+      
+      .page {
+        margin: auto;
+        padding: 50px 0;
+        width: 700px;
+      }
+      
+      .content {
+        float: left;
+        width: 350px;
+      }
+      
+      .payment-bar {
+        float: right;
+        width: 300px;
+      }
+      
+      fieldset {
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+      
+      .email {
+        position: relative;
+      }
+      
+      input[type=text] {
+        border: 1px solid #939393;
+        border-radius: 3px;
+        box-sizing: border-box;
+        padding: 5px;
+        width: 100%;
+      }
+      
+      .field-err {
+        background-color: #fdd;
+      }
+      
+      .err-tt {
+        background-color: #fff;
+        border: 1px dotted #ebb;
+        color: #d00;
+        font-size: 11px;
+        padding: 3px 5px;
+        position: absolute;
+        right: 3px;
+        top: 4px;
+      }
+      
+      .email-controls {
+        display: none;
+        position: relative;
+      }
+      
+      #email-err {
+        display: none;
+      }
+      
+      #confirm-email-err {
+        display: none;
+      }
+      
+      .email-notification {
+        background-color: #fdd;
+        border: 1px solid #ebb;
+        color: #933;
+        display: none;
+        font-size: 11px;
+        margin: 10px 0;
+        padding: 5px;
+      }
+      
+      .bbar {
+        text-align: right;
+      }
+      
+      #undo {
+        color: #d00;
+        float: left;
+        font-size: 11px;
+      }
+      
+      input[type=button] {
+        background-color: #23658b;
+        border: 0;
+        border-radius: 3px;
+        color: #fff;
+        font-weight: bold;
+        padding: 5px 10px;
+      }
+      
+      input[type=button]:hover {
+        background-color: #3291c8;
+        cursor: pointer;
+      }
+      
+      .ppb-notification {
+        background-color: #fdd;
+        border: 1px solid #ebb;
+        color: #933;
+        display: none;
+        font-size: 11px;
+        margin-top: 10px;
+        padding: 5px;
+      }
+      
+      .email-opt-in {
+        margin-top: 10px;
+      }
+      
+      .mask {
+        background-color: #000;
+        bottom: 0;
+        display: none;
+        filter: alpha(opacity=50);
+        -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+        left: 0;
+        opacity: 0.5;
+        -khtml-opacity: 0.5;
+        -moz-opacity:0.5;
+        position: fixed;
+        right: 0;
+        top: 0;
+        z-index: 1;
+      }
+      
+      .prompt-cnt {
+        display: none;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        z-index: 2;
+      }
+      
+      .prompt {
+        background-color: #fff;
+        border-radius: 4px;
+        left: -50%;
+        padding: 15px;
+        position: relative;
+        text-align: right;
+        top: -50%;
+      }
+    </style>
+  </head>
+  <body>
+  
+    <div class='page'>
+    
+      <div class='content'>
+        <h1>Email on Payment</h1>
+        
+        <p>
+          Adding or removing an email address may change offer eligibility and pricing.  
+        </p>
+        
+        <p>
+          When an agent adds or removes an email address, he'll be automatically brought
+          back to the shopping cart to review the order as soon as he saves the change.
+          The system indicates this all to him before he makes the change.
+        </p>
+        
+        <p>
+          Changing an email address from one value to another doesn't affect the order.
+          The agent won't be taken back to the shopping cart in that case.
+        </p>
+        
+        <h3>Why not remove email from this page?</h3>
+        
+        <p>
+          We'd like to allow the caller to opt into email offers and paperless billing
+          at this point. Both require an email address. So it's only natural that we
+          allow it to be collected here, even if that does force the agent to review the
+          order.
+        </p>
+      </div>
+      
+      <div class='payment-bar'>
+        <fieldset>
+          <legend>Email</legend>
+          <div class='email'>
+            <input id='email' type='text' placeholder='Email'>
+            <div id='email-err' class='err-tt'>Email is incorrect.</div>
+          </div>
+          <div class='email-controls'>
+            <input id='confirm-email' type='text' placeholder='Confirm Email'>
+            <div id='confirm-email-err' class='err-tt'>Must match email.</div>
+            
+            <div class='email-notification'>
+              Adding or removing an email address may change pricing.
+              You'll be taken back to the shopping cart to review the order.
+            </div>
+            
+            <div class='bbar'>
+              <span><a id='undo' href='#'>Undo</a></span>
+              <input id='save' type='button' value='Save'>
+            </div>
+          </div>
+          
+          <div class='email-opt-in'><input id='email-opt-in' type='checkbox'> <label for='email-opt-in'>DIRECTV Offers by Email</label></div>
+          <div><input id='ppb-opt-in' type='checkbox'> <label for='ppb-opt-in'>Paperless Billing</label></div>
+          
+          <div class='ppb-notification'>
+            You must register on DIRECTV.COM after account activation
+            to get paperless billing and any related charges.
+          </div>
+        </fieldset>
+      </div>
+      
+    </div>
+     
+    <div class='mask'></div>
+    
+    <div class='prompt-cnt'>
+      <div class='prompt'>
+        <p>This would be the shopping cart page.</p>
+        <input id='back' type='button' value='Back'>
+      </div>
+    </div>
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script>
+      
+      $(function() {
+      
+        var $email = $('#email');
+        var $confirmEmail = $('#confirm-email');
+        var oldEmail;
+        var emailErrTimer = null, confirmErrTimer = null;
+        var emptyPattern = /^\s*$/;
+      
+        // Show email controls when moving into the email field.
+        $email.focus(function(e) {
+          var $emailControls = $('.email-controls');
+          if ($emailControls.is(':not(:visible)')) {
+            $emailControls.fadeIn();
+            oldEmail = $email.val();
+            if (emptyPattern.test(oldEmail))
+              $('.email-notification').fadeIn();
+            }
+        });
+        
+        // If the agent's trying to remove the email, prompt him to review the order.
+        $email.keyup(function() {
+          if (!emptyPattern.test(oldEmail)) {
+            if (emptyPattern.test($email.val()))
+              $('.email-notification').fadeIn();
+            else
+              $('.email-notification').fadeOut();
+          }
+        });
+        
+        // Hide email controls and revert email fields on undo.
+        $('#undo').click(function(e) {
+          e.preventDefault();
+          $('.email-controls').hide('fast', function() {
+            $email.val(oldEmail);
+            $confirmEmail.val(oldEmail);
+            $email.removeClass('field-err');
+            $confirmEmail.removeClass('field-err');
+            $('#email-err').hide();
+            $('#confirm-email-err').hide();
+            $('.email-notification').hide();
+          });
+        });
+        
+        // Show/hide field error on hover in/out.
+        $email.hover(function(e) {
+          // Hover in.
+          if ($email.hasClass('field-err'))
+            $('#email-err:not(:visible)').fadeIn();
+            
+            // Reset time to hide, each time you hover in.
+            if (emailErrTimer)
+              clearTimeout(emailErrTimer);
+            
+            // Hide it in a little bit...
+            emailErrTimer = setTimeout(function() {
+              $('#email-err').fadeOut();
+              emailErrTimer = null;
+            }, 2000);
+        }, function() {
+          // Hover out.
+        });
+        
+        // Show/hide field error on hover in/out.
+        $confirmEmail.hover(function(e) {
+          // Hover in.
+          if ($confirmEmail.hasClass('field-err'))
+            $('#confirm-email-err:not(:visible)').fadeIn();
+            
+            // Reset time to hide, each time you hover in.
+            if (confirmErrTimer)
+              clearTimeout(confirmErrTimer);
+            
+            // Hide it in a little bit...
+            confirmErrTimer = setTimeout(function() {
+              $('#confirm-email-err').fadeOut();
+              confirmErrTimer = null;
+            }, 2000);
+        }, function() {
+          // Hover out.
+        });
+        
+        // When the Save button is clicked, validate and save.
+        $('#save').click(function(e) {
+
+          var err = false;
+          var email = $email.val();
+          var emailPattern = /^\s*([\w.-]+@[\w.-]+\.[A-Za-z]{2,4}|\s*)\s*$/;
+          
+          // Remove any old errors, and start anew.
+          $email.removeClass('field-err');
+          $confirmEmail.removeClass('field-err');
+          $('#email-err').hide();
+          $('#confirm-email-err').hide();
+            
+          // Look for errors in the Email field.
+          if (!emailPattern.test(email)) {
+            $email.addClass('field-err');
+            err = true;
+          }
+          
+          // Look for errors in the Confirm Email field.
+          if (email != $confirmEmail.val()) {
+            $confirmEmail.addClass('field-err');
+            err = true;
+          }
+          
+          if (!err) {
+            console.log("no errors");
+            // Navigate to the payment page if necessary.
+            if ($('.email-notification').is(':visible')) {
+              console.log("notification is visible... You should be seeing the mask");
+              $('.mask').show();
+              $('.prompt-cnt').show();
+              $('.email-notification').hide();
+            }
+            
+            $('.email-controls').hide('fast');
+          }
+        });
+        
+        // Pressing Enter from either email field is the same as clicking Save.
+        $email.keypress(function(e) {
+          if (e.keyCode == 13) {
+            $('#save').click();
+            $email.blur();
+          }
+        });
+        
+        // Pressing Enter from either email field is the same as clicking Save.
+        $confirmEmail.keypress(function(e) {
+          if (e.keyCode == 13) {
+            $('#save').click();
+            $confirmEmail.blur();
+          }
+        });
+        
+        // Show/hide notification when paperless billing is checked/unchecked.
+        $('#ppb-opt-in').change(function(e) {
+          $(e.target).is(':checked') ?
+            $('.ppb-notification').fadeIn() : $('.ppb-notification').fadeOut();
+        });
+        
+        $('#back').click(function() {
+          $('.prompt-cnt').hide();
+          $('.mask').hide();
+        });
+        
+      });
+      
+    </script>
+  </body>
+</html>
