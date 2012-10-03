@@ -342,6 +342,7 @@
         // When the Save button is clicked, validate and save.
         $('#save').click(function(e) {
 
+          var $emailNotification = $('.email-notification');
           var err = false;
           var email = $email.val();
           var emailPattern = /^\s*([\w.-]+@[\w.-]+\.[A-Za-z]{2,4}|\s*)\s*$/;
@@ -366,11 +367,11 @@
           
           if (!err) {
             // Navigate to the payment page if necessary.
-            if ($('.email-notification').is(':visible')) {
+            if (oldEmail != email && $emailNotification.is(':visible')) {
               $('.mask').show();
               $('.prompt-cnt').show();
               $('#save').val('Save');
-              $('.email-notification').hide();
+              $emailNotification.hide();
             }
             
             $('.email-controls').hide('fast');
