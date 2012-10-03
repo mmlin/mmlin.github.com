@@ -94,6 +94,7 @@
       }
       
       .bbar {
+        display: none;
         text-align: right;
       }
       
@@ -174,33 +175,7 @@
         <h1>Email on Payment</h1>
         
         <p>
-          If you add or remove the email address here, then you have to review the order,
-          because offers and pricing may have changed.
-        </p>
-        
-        <p>
-          You'll automatically be taken back to the shopping cart as soon, as you save,
-          to review the order. Notice that the system indicates it to you if that's the case.
-        </p>
-        
-        <p>
-          If you're simply changing the email address, you can stay on the payment page.
-        </p>
-        
-        <h3>Why not remove email from this page?</h3>
-        
-        <p>
-          To allow the caller to opt in for email offers or paperless billing -
-          both of which require an email address. Better to get him subscribed
-          to these programs, even if it requires you to review the order.
-        </p>
-        
-        <h2>Alternative</h2>
-        
-        <p>
-          We could get rid of the "Save" concept. A button prompting the agent
-          to "Review" would appear. You click it when you're ready. Saving
-          is automatic. See it <a href='/dtv/email-on-payment-auto-save'>here</a>.
+          This is an alternative that doesn't involve explicitly saving.
         </p>
       </div>
       
@@ -264,8 +239,8 @@
         var oldEmail;
         var emailErrTimer = null, confirmErrTimer = null;
         var emptyPattern = /^\s*$/;
-        var addMsg = "Adding an email address may change pricing. You'll be taken back to the shopping cart to review the order.";
-        var remMsg = "Removing the email address may change pricing. You'll be taken back to the shopping cart to review the order.";
+        var addMsg = "Adding an email address may change pricing. You must go back to the shopping cart to review the order.";
+        var remMsg = "Removing the email address may change pricing. You must go back to the shopping cart to review the order.";
       
         // Show email controls when moving into the email field.
         $email.focus(function(e) {
@@ -275,7 +250,8 @@
             oldEmail = $email.val();
             if (emptyPattern.test(oldEmail)) {
               $('.email-notification').text(addMsg).fadeIn();
-              $('#save').val('Save & Review');
+              $('#save').val('Review');
+              $('.bbar').show();
             }
           }
         });
@@ -285,11 +261,13 @@
           if (!emptyPattern.test(oldEmail)) {
             if (emptyPattern.test($email.val())) {
               $('.email-notification').text(remMsg).fadeIn();
-              $('#save').val('Save & Review');
+              $('#save').val('Review');
+              $('.bbar').show();
             }
             else {
               $('.email-notification').fadeOut();
-              $('#save').val('Save');
+              //$('#save').val('Save');
+              $('.bbar').hide();
             }
           }
         });
@@ -306,6 +284,7 @@
             $('#confirm-email-err').hide();
             $('.email-notification').hide();
             $('#save').val('Save');
+            $('.bbar').hide();
           });
         });
         
@@ -378,6 +357,7 @@
             if (oldEmail != email && $emailNotification.is(':visible')) {
               $('.mask').show();
               $('.prompt-cnt').show();
+              $('.bbar').hide();
               $('#save').val('Save');
               $emailNotification.hide();
             }
