@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Scrub Override</title>
+    <link href='/lib/font-awesome/css/font-awesome.css' rel='stylesheet' type='text/css'>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        font-weight: bold;
+        padding: 50px;
+      }
+      
+      .col {
+        width: 200px;
+      }
+      
+      input[type=text] {
+        box-sizing: border-box;
+        width: 100%;
+      }
+      
+      .half {
+        display: inline-block;
+        width: 50%;
+      }
+      
+      input[class=zip] {
+        width: 98%;
+      }
+      
+      .btn-cnt {
+        padding-right: 22px;
+        white-space: nowrap;
+      }
+      
+      .btn-main {
+        background-color: #eee;
+        border: 1px solid #ccc;
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+        box-sizing: border-box;
+        color: #393939;
+        display: inline-block;
+        width: 100%;
+        padding: 2px 5px;
+        text-align: center;
+      }
+      
+      .btn-main:hover {
+        background-color: #939393;
+        color: #fff;
+        cursor: pointer;
+      }
+      
+      .btn-split {
+        background-color: #eee;
+        border: 1px solid #ccc;
+        border-left: 0;
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+        color: #393939;
+        padding: 2px 5px;
+      }
+      
+      .btn-split:hover {
+        background-color: #939393;
+        color: #fff;
+        cursor: pointer;
+      }
+      
+      .override:hover {
+        color: #b00;
+      }
+      
+      .override-disabled {
+        color: #bbb;
+      }
+      
+      .override-disabled:hover {
+        background-color: #eee;
+        color: #bbb;
+        cursor: default;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <h2>Address Scrub Override</h2>
+    
+    <div class='col'>
+      <h3>Disabled</h3>
+      <div class='field'><input type='text' placeholder='Street Address'></div>
+      <div class='field'><input type='text' placeholder='Unit'></div>
+      <div class='half'>
+        <input class='zip' type='text' placeholder='ZIP'>
+      </div><div class='half'>
+        <div class='btn-cnt'>
+          <span class='btn-main'>Validate</span><span class='btn-split override override-disabled'><i class='icon-ban-circle'></i></span>
+        </div>
+      </div>
+    </div>
+    
+    <div class='col'>
+      <h3>Enabled</h3>
+      <div class='field'><input type='text' placeholder='Street Address'></div>
+      <div class='field'><input type='text' placeholder='Unit'></div>
+      <div class='half'>
+        <input class='zip' type='text' placeholder='ZIP'>
+      </div><div class='half'>
+        <div class='btn-cnt'>
+          <span class='btn-main'>Validate</span><span class='btn-split override'><i class='icon-ban-circle'></i></span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
