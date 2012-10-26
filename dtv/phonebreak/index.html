@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Phonebreak</title>
+    <link href="http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css" rel="stylesheet">
+    <link href="css/phonebreak.css" rel="stylesheet">
+    <style>
+      body {
+        background-color: #f0f0f0;
+        font-family: Helvetica, sans-serif;
+        font-size: 62.5%;
+        padding: 50px;
+      }
+      
+      #result {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        color: #393939;
+        float: right;
+        padding: 2em;
+      }
+      
+      #result label {
+        display: block;
+        font-size: 1.3em;
+        font-weight: bold;
+      }
+      
+      #result input {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        font-size: 1.6em;
+        margin-bottom: 1em;
+        padding: 0 3px;
+        width: 200px;
+      }
+      
+      .test-cases {
+        color: #00b7ff;
+        font-size: 1.3em;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <div id="result">
+      <label>Number Entered</label><input id="number-entered" type="text" readonly="readonly">
+      <label>Formatted Number</label><input id="formatted-number" type="text" readonly="readonly">
+      <label>Area Code</label><input id="area-code" type="text" readonly="readonly">
+      <label>Prefix</label><input id="prefix" type="text" readonly="readonly">
+      <label>Line Number</label><input id="line-number" type="text" readonly="readonly">
+      <label>Error</label><input id="error" type="text" readonly="readonly">
+    </div>
+    
+    <div id="my-widget"></div>
+    
+    <p><a class="test-cases" href="test/">Test Cases</a></p>
+    
+    <script src="http://code.jquery.com/jquery-1.8.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.9.1/jquery-ui.js"></script>
+    <script src="js/phonebreak.js"></script>
+    
+    <script>
+      $(function() {
+        
+        $('#my-widget').phonebreak({
+          submit: function(result) {
+            $('#number-entered').val(result.raw);
+            $('#formatted-number').val(result.formatted);
+            $('#area-code').val(result.area_code);
+            $('#prefix').val(result.prefix);
+            $('#line-number').val(result.line_number);
+            $('#error').val(result.error);
+          },
+          clientSide: true
+        });
+        
+      });
+    </script>
+  </body>
+</html>

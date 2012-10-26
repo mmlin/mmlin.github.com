@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Unit Tests | Phonebreak</title>
+    <link href="../lib/mocha/mocha.css" rel="stylesheet">
+    <link href="http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css" rel="stylesheet">
+    <link href="../css/phonebreak.css" rel="stylesheet">
+  </head>
+  <body>
+    <div id="mocha"></div>
+    
+    <script src="../lib/mocha/mocha+assert.js"></script>
+    <script> mocha.setup('bdd') </script>
+    <script src="http://code.jquery.com/jquery-1.8.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.9.1/jquery-ui.js"></script>
+    <script src="../js/phonebreak.js"></script>
+    
+    <!-- Unit tests. -->
+    <script src="phonebreak.js"></script>
+    
+    <script> mocha.run(); </script>
+  </body>
+</html>

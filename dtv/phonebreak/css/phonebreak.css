@@ -1,0 +1,29 @@
+.mike-phonebreak {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #393939;
+  display: inline-block;
+  padding: 2em;
+}
+
+.mike-phonebreak .title {
+  font-size: 1.8em;
+  margin: 0 0 1em;
+}
+
+.mike-phonebreak .description {
+  font-size: 1.3em;
+  margin: 1em 0;
+}
+
+.mike-phonebreak .field {
+  border: 1px solid #aaa;
+  font-size: 1.6em;
+  padding: 0 3px;
+}
+
+.mike-phonebreak .submit {
+  font-size: 1.6em;
+  font-weight: bold;
+}
