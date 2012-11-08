@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Unit Testing in the Browser</title>
+    <link rel="stylesheet" href="http://yandex.st/highlightjs/7.3/styles/zenburn.min.css">
+    <style>
+      body {
+        color: #393939;
+        font-family: "Helvetica Neue", Helvetica, sans-serif;
+        margin: auto;
+        width: 650px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Unit Testing in the Browser</h1>
+    
+    <p>
+      A unit test is a focused test that a developer creates for a standalone component or "unit" of his code.
+      Instead of testing features from a user's point of view - they test the individual components used to build those features.
+      Unit tests are automated, fast, and are used to verify our code is working, particularly after writing or changing it.
+    </p>
+    
+    <p><strong><em>I recommend them.</em></strong></p>
+    
+    <p>
+      In this article, we'll go over how to create unit tests for JavaScript in the browser.
+      Unit tests require that, to some degree, your code is written in a modular way -
+      in "units" that can be tested. We'll start with a small example app that's not so modular,
+      and iteratively refactor it to support unit testing.
+    </p>
+    
+    <h2>Our Example App</h2>
+    
+    <p>
+      Type a phone number with letters (e.g. 1-800-MATTRESS) and press Enter.
+      The letters will be converted to numbers based on a phone keypad.
+    </p>
+
+    <input type="text" placeholder="Letters" onkeypress="decodePhone(event)">
+    <input type="text" placeholder="Numbers" readonly="readonly" disabled="disabled">
+    
+    <p>Here's the HTML markup (notice the attached <code>onkeypress</code> event handler):</p>
+    
+<pre><code>&lt;input type="text" placeholder="Letters" onkeypress="decodePhone(event)"&gt;
+&lt;input type="text" placeholder="Numbers"
+       readonly="readonly" disabled="disabled"&gt;
+</code></pre>
+       
+    <p>And supporting JavaScript code in the same HTML doc:</p>
+    
+<pre><code>// For converting characters to numbers based on the phone keypad.
+var charMap = {
+  'A': 2, 'B': 2, 'C': 2, 'D': 3, 'E': 3, 'F': 3, 'G': 4, 'H': 4, 'I': 4,
+  'J': 5, 'K': 5, 'L': 5, 'M': 6, 'N': 6, 'O': 6, 'P': 7, 'Q': 7, 'R': 7,
+  'S': 7, 'T': 8, 'U': 8, 'V': 8, 'W': 9, 'X': 9, 'Y': 9, 'Z': 9
+};
+
+// Takes a phone number (e.g. 800-DIRECTV) from the first field,
+// converts it to numbers (e.g. 800-3473288) and writes it to the second.
+function decodePhone(e) {
+  if (e.keyCode != 13) return; // The Enter key triggers the decoder.
+  
+  // Get the first two input fields from the HTML document.
+  var els = document.getElementsByTagName('input'),
+      input = els[0], output = els[1], phone = input.value;
+  
+  // Do the replacement.
+  for (var c in charMap)
+    phone = phone.replace(new RegExp(c, 'gi'), charMap[c]);
+  
+  // Save the result into the second field.
+  output.value = phone;
+}
+</code></pre>
+
+    <h3>Preparing to Test</h3>
+
+    <p>
+      To do unit testing in the browser we create a separate test page. We do that for a couple reasons:
+    </p>
+    
+    <ol>
+      <li>So we don't mix our test code with production code, and</li>
+      <li>To create a report with the test results.</li>
+    </ol>
+    
+    <p>
+      The most straight-forward approach is to copy everything into a separate HTML file,
+      and then add some new code that tests your original. <strong>Don't do that.</strong>
+      The problem is that we'd no longer be testing production code - we'd be testing a copy of it.
+      And if we change one without changing the other, our test results would be meaningless.
+    </p>
+    
+    <p>
+      Instead, let's externalize our JavaScript - meaning put our JavaScript in separate file
+      from your HTML. Then we can include the same JavaScript file into both our production
+      and test HTML pages. Our test page will look something like this:
+    </p>
+    
+<pre><code>&lt;input type="text" placeholder="Letters" onkeypress="decodePhone(event)"&gt;
+&lt;input type="text" placeholder="Numbers"
+       readonly="readonly" disabled="disabled"&gt;
+       
+&lt;script src="decodePhone.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  // Your test code goes here.
+&lt;/script&gt;
+</code></pre>
+
+    <p>
+      There are several other changes I would make, which we'll go over later,
+      but the important thing is that we externalize the unit of code we want to test
+      so that we can include it into a test page.
+    </p>
+    
+    <h3>Writing Our Test Cases</h3>
+    
+    <p>
+      A test case just runs some bit of our code, checks to see if what we expected to happen
+      actually happened, and then indicates to us whether it passed or failed. Sound easy enough?
+      Let's write a test case.
+    </p>
+    
+    <p>
+      The test will simulate typing "1-800-MATTRESS" into the input field and hitting the Enter key.
+      Then it will check that the output field has the value "1-800-6288737". The result (i.e. pass/fail)
+      is displayed in a list for which we added an HTML tag (<code>&lt;ul id="test-results"&gt;</code>)
+      as a placeholder. We'll include a couple other quick tests as well.
+    </p>
+    
+<pre><code>&lt;input type="text" placeholder="Letters" onkeypress="decodePhone(event)"&gt;
+&lt;input type="text" placeholder="Numbers"
+       readonly="readonly" disabled="disabled"&gt;
+
+&lt;!-- A placeholder to log test results. --&gt;
+&lt;ul id="test-results"&gt;&lt;/ul&gt;
+       
+&lt;script src="decodePhone.js"&gt;&lt;/script&gt;
+&lt;script>
+  // Your test code goes here.
+  
+  test("1-800-MATTRESS", "1-800-6288737");
+  test("(800) DIRECTV", "(800) 3473288");
+  test("1-800-I-FLY-SWA", "1-800-4-359-792");
+  
+  // Helper function to perform a single test case.
+  function test(codedPhone, decodedPhone) {
+    // Set the phone number in the input field.
+    var els = document.getElementsByTagName('input'),
+      input = els[0], output = els[1];
+    input.value = codedPhone;
+    
+    // Simulate the Enter key being pressed.
+    var event = document.createEvent('Events');
+    event.initEvent('keypress', true, true);
+    event.keyCode = 13;
+    input.dispatchEvent(event);
+    
+    // Check the return value.
+    var passed = (output.value == decodedPhone);
+    
+    // Log the test result.
+    var logEntry = "Should decode '" + codedPhone +
+      "' to '" + decodedPhone + "'... " + (passed ? "Pass" : "Fail");
+    var results = document.getElementById("test-results"),
+        li = document.createElement("li");
+    li.innerText = logEntry;
+    results.appendChild(li);
+  }
+&lt;/script&gt;
+</code></pre>
+
+    <p>The result should look something like this:</p>
+    
+    <ul>
+      <li>Should decode '1-800-MATTRESS' to '1-800-6288737'... FAIL</li>
+      <li>Should decode '(800) DIRECTV' to '(800) 3473288'... PASS</li>
+      <li>Should decode '1-800-I-FLY-SWA' to '1-800-4-359-792'... PASS</li>
+    </ul>
+    
+    <p>
+      The first test failed because I forgot to <em>leave off the last S for savings</em>.
+      But at least we can see it's working.
+    </p>
+    
+    <p>
+      This is a really simple example to give you a visual sense of what unit testing is.
+      However, we're more likely to use a pre-built testing framework. They provide
+      more features without us having to re-think and re-write the code and patterns that
+      are common across test cases, such as logging (which we've touched on) and
+      exception handling (which we haven't).
+    </p>
+    
+    <h2>Using a Framework</h2>
+    
+    <p>
+      We're going to use the unit test framework <a href="http://visionmedia.github.com/mocha/">Mocha</a>
+      to define, run, and log our tests.
+      At a high level, most unit test frameworks work the same way as one another - so you shouldn't have
+      much trouble if you choose another. Here's how a test is defined in Mocha:
+    </p>
+
+<pre><code>describe('Array', function(){
+  describe('#indexOf()', function(){
+    it('should return -1 when the value is not present', function(){
+      expect([1,2,3].indexOf(5)).to.be(-1);
+      expect([1,2,3].indexOf(0)).to.be(-1);
+    });
+  });
+});
+</code></pre>
+
+    <p>
+      <code>describe()</code> is optional.
+      It's used to organize the test results in the report with headers and sub-headers.
+    </p>
+    
+    <img src="http://visionmedia.github.com/mocha/images/reporter-html.png"
+         style="max-width:100%;box-shadow:0 3px 10px 0 #dedede;border-radius:3px;">
+    
+    <p>
+      We also need to couple Mocha with an assertion library. 
+      We'll use <a href="https://github.com/LearnBoost/expect.js">Expect</a>. 
+      Assertion libraries are used to check for something your test expects.
+      If everything is as expected, nothing happens. Otherwise an exception is thrown.
+      Here's are some examples using Expect:
+    </p>
+    
+<pre><code>expect(window.r).to.be(undefined);
+expect({ a: 'b' }).to.eql({ a: 'b' })
+expect(5).to.be.a('number');
+expect([]).to.be.an('array');
+expect(window).not.to.be.an(Image);
+expect(5).to.be.a('string'); // Throws an error.
+</code></pre>
+
+    <h3>Setup</h3>
+    
+    <p>From what we already have, the additional setup required is to:</p>
+    <ul>
+      <li>Include the Mocha (CSS &amp; JS) and Expect (JS) in our page,</li>
+      <li>Add a <code>&lt;div id="mocha"&gt;</code> tag, as a placeholder for Mocha's test results,</li>
+      <li>Tell Mocha what flavor of the API we want to use (BDD/TDD/exports),</li>
+      <li>Modify our test cases to define them the Mocha way, and</li>
+      <li>Tell Mocha to run the tests.</li>
+    </ul>
+
+<pre><code>&lt;!-- HEAD... --&gt;
+
+  &lt;!-- The styles for Mocha's results to look pretty. --&gt;
+  &lt;link href="mocha.css" rel="stylesheet"&gt;
+
+&lt;!-- BODY... --&gt;
+
+  &lt;!-- DOM elements required for our tests. --&gt;
+  &lt;input type="text" placeholder="Letters" onkeypress="decodePhone(event)"&gt;
+  &lt;input type="text" placeholder="Numbers"
+         readonly="readonly" disabled="disabled"&gt;
+
+  &lt;!-- A placeholder for Mocha to log test results. --&gt;
+  &lt;div id="mocha"&gt;&lt;/div&gt;
+
+  &lt;!-- Include Expect &amp; Mocha. --&gt;
+  &lt;script src="expect.js"&gt;&lt;/script&gt;
+  &lt;script src="mocha.js"&gt;&lt;/script&gt;
+  
+  &lt;!-- For Mocha, say which terminology you like (BDD, TDD or exports) --&gt;
+  &lt;script&gt; mocha.setup('bdd'); &lt;/script&gt;
+
+  &lt;!-- Include other dependencies, like the code to test. --&gt;
+  &lt;script src="decodePhone.js"&gt;&lt;/script&gt;
+  
+  &lt;!-- Define your tests. --&gt;
+  &lt;script&gt;
+  
+    // Your test code goes here.
+    
+  &lt;/script&gt;
+  
+  &lt;!-- Run your tests. --&gt;
+  &lt;script&gt; mocha.run(); &lt;/script&gt;
+</code></pre>
+  
+  <h3>Adding Test Cases</h3>
+  
+  <p>Here's our test code - notice that our tests now use <code>expect()</code>
+    to assert expected conditions:</p>
+  
+<pre><code>describe("decodePhone.js", function() {
+  describe("decodePhone()", function() {
+  
+    it("Should accept common address formats", function() {
+      test("(510) 415-MIKE", "(510) 415-6453");
+      test("510-415-MIKE", "510-415-6453");
+      test("510.415.MIKE", "510.415.6453");
+    });
+
+    it("Should cover every letter in the alphabet", function() {
+      test("Grumpy wizards make toxic brew for the evil Queen and Jack.",
+        "478679 9492737 6253 86942 2739 367 843 3845 78336 263 5225.");
+    });
+    
+    // A helper function to make tests more concise.
+    function test(codedPhone, decodedPhone) {
+      // Set the phone number in the input field.
+      var els = document.getElementsByTagName('input'),
+        input = els[0], output = els[1];
+      input.value = codedPhone;
+      
+      // Simulate the Enter key being pressed.
+      var event = document.createEvent('Events');
+      event.initEvent('keypress', true, true);
+      event.keyCode = 13;
+      input.dispatchEvent(event);
+      
+      // Check the return value.
+      expect(output.value).to.be(decodedPhone);
+    }
+  });
+});
+</code></pre>
+
+    <p>
+      I'll leave it to you to check out the guides and API documentation
+      for <a href="http://visionmedia.github.com/mocha/">Mocha</a>
+      and <a href="https://github.com/LearnBoost/expect.js">Expect</a>. 
+    </p>
+    
+    <h2>Directory Structure</h2>
+    
+    <p>Here's one way we might structure our test cases in our filesystem:</p>
+    
+<pre><code>-- webapp/
+   |-- index.html
+   |-- js/
+   |   |-- phoneDecoder.js  (production code to be tested)
+   |   `-- someOther.js     (more code to be tested)
+   |-- lib/
+   |   |-- expect/
+   |   |   `-- expect.js
+   |   `-- mocha/
+   |       |-- mocha.css
+   |       `-- mocha.js
+   `-- test/
+       |-- index.html        (HTML test harness for all browser tests)
+       |-- phoneDecoder.html (HTML test harness for phoneDecoder.js)
+       |-- phoneDecoder.js   (test cases for phoneDecoder.js)
+       |-- someOther.html    (HTML test harness for someOther.js)
+       `-- someOther.js      (test cases for someOther.js)
+</code></pre>
+
+    <p>
+      I like having one test harness for each component, plus one that runs them all.
+      While working on a component, we can constantly run its tests to make sure we
+      aren't breaking anything. Before we check in, we can run all the tests to make sure there are
+      no integration problems between components - assuming we have tests for that.
+    </p>
+    
+    <h2>One Step Further</h2>
+    
+    <p>
+      We've gone through the easiest way to introduce unit tests for our client-side code.
+      Stop here if you want, and go write some. Or read on. This section covers a few topics that come up often.
+    </p>
+    
+    <h3>The Line Between Page &amp; Component</h3>
+    
+    <p>
+      Our code is not as reusable as it can be, because it assumes that the input field
+      is the first <code>&lt;input&gt;</code> tag and the output field is the second.
+      If we plan to reuse this code on multiple pages, it's very possible one
+      won't follow that pattern.
+    </p>
+
+<pre><code>function decodePhone(e) {
+  ...
+  // Get the first two input fields from the HTML document.
+  var els = document.getElementsByTagName('input'),
+      input = els[0], output = els[1], phone = input.value;
+  ...
+}
+</code></pre>
+    
+    <p>
+      What we do about it is really a design/personal choice - and may be nothing. We could require our
+      <code>&lt;input&gt;</code> tags to have a certain <code>class</code> (<code>&lt;input class="coded-phone"&gt;</code>)
+      so that they can be identified by that rather than by position on the page.
+    </p>
+    
+<pre><code>&lt;input class="coded-phone" ... onkeypress="decodePhone(event)"&gt;
+&lt;input class="decoded-phone" ... &gt;
+</code></pre>
+    
+    <p>
+      We could remove all the DOM actions and let each individual page handle it.
+      In that case, the <code>decodePhone()</code> would be reduced to simply taking a phone number
+      as a string and returning the decoded value as a string. The resulting HTML page might look like this:
+    </p>
+    
+<pre><code>&lt;input ... onkeypress="handleEnter(event)"&gt;
+&lt;input ... &gt;
+
+&lt;script src="decodePhone.js"&gt;&lt;/script&gt;
+
+&lt;!-- Page-specific JavaScript. --&gt;
+&lt;script&gt;
+  // Get the first two input fields from the HTML document.
+  var els = document.getElementsByTagName('input'),
+      input = els[0], output = els[1];
+      
+  function handleEnter() {
+    if (e.keyCode != 13) return; // The Enter key triggers the decoder.
+    output.value = decodePhone(input.value);
+  }
+&lt;/script&gt;
+</code></pre>
+
+    <p>
+      It would simplify the unit tests too, because the unit tests would no longer
+      have to set and get values from DOM elements or trigger <code>keypress</code> events.
+      The unit we're testing would be effectively smaller.
+    </p>
+    
+    <p>
+      We could replace the <code>phoneDecoder()</code> function with a full blown class
+      that takes two configuration parameters - a selector to identify which <code>&lt;input&gt;</code>
+      tag will contain the coded (original) phone, and a function to run when we press Enter in that field.
+    </p>
+ 
+ <pre><code>&lt;!-- A handler for the keypress event will be added later. --&gt;
+&lt;input id="coded-phone" ... &gt;
+&lt;input id="decoded-phone" ... &gt;
+
+&lt;script src="PhoneDecoderField.js"&gt;&lt;/script&gt;
+
+&lt;!-- Page-specific JavaScript. --&gt;
+&lt;script&gt;
+  new PhoneDecoderField({
+    selector: '#coded-phone',
+    onEnterPress: function(decodedPhone) {
+      document.getElementById('decoded-phone').value = decodedPhone;
+    }
+  });
+&lt;/script&gt;
+</code></pre>
+    
+    <p>
+      This is a common approach taken by many
+      <a href="http://api.jqueryui.com/jQuery.widget/#method-_create">jQueryUI</a>
+      and <a href="http://yuilibrary.com/yui/docs/widget/">YUI</a> widgets, for example.
+    </p>
+    
+    <p>
+      Our test cases would need to change accordingly. My recommendation here is to
+      strive to test every method of our API, plus whatever internal functions we think make sense.
+    </p>
+    
+    <p>
+      So on the topic of where to break down our components, we have a lot of choices, many of which
+      may work for us. That said, smaller projects can manage a bit of coupling between HTML and JS.
+      Larger projects, with a greater amount of reuse, would tend towards more isolated components
+      to make them easier to manage.
+    </p>
+
+        
+    <h3>Asynchronous Tests</h3>
+    
+    <p>
+      Testing asynchronous code is commonplace with JavaScript, because so many operations are evented.
+      Simply invoke the callback when your test is complete. 
+      By adding a callback (usually named <code>done</code>) to <code>it()</code> Mocha will know that it should wait for completion.
+    </p>
+    
+<pre><code>describe('User', function(){
+  describe('#save()', function(){
+    it('should save without error', function(done){
+      var user = new User('Luna');
+      user.save(function(err){
+        if (err) throw err;
+        done();
+      });
+    });
+  });
+});
+</code></pre>
+
+    <h3>Components That Issue HTTP Requests</h3>
+    
+    <p>
+      My goal with client-side unit tests is to have them run without my entire app server running.
+      If we have components that issue HTTP requests, it's useful to have the URL configurable for that reason.
+      Then we can have our test case point the component to a location where we have a mock response
+      to test its behavior. We can have several mock responses for various test cases.
+    </p>
+    
+<pre><code>describe('User', function(){
+  describe('#save()', function(){
+    it('should save without error', function(done){
+      var user = new User('Luna');
+      user.url = 'mock/success_response.json'; // Our mock response.
+      user.save(function(err){
+        if (err) throw err;
+        done();
+      });
+    });
+  });
+});
+</code></pre>
+    
+    <p>
+      Don't forget to include things like a malformed response, or pointing the component to a file that doesn't exist.
+    </p>
+    
+    <h2>Conclusion</h2>
+    
+    <p>
+      Unit tests <em>can</em> be run against browser code. As with all unit testing, it requires some degree of modularitry -
+      which may mean refactoring our code to make it possible. The degree of build automation is not as wide as the
+      server-side equivalents, but it should get the job done - to develop faster, with fewer bugs.
+    </p>
+
+    <script src="http://yandex.st/highlightjs/7.3/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+    <script>
+      var charMap = {
+        'A': 2, 'B': 2, 'C': 2, 'D': 3, 'E': 3, 'F': 3, 'G': 4, 'H': 4, 'I': 4,
+        'J': 5, 'K': 5, 'L': 5, 'M': 6, 'N': 6, 'O': 6, 'P': 7, 'Q': 7, 'R': 7,
+        'S': 7, 'T': 8, 'U': 8, 'V': 8, 'W': 9, 'X': 9, 'Y': 9, 'Z': 9
+      };
+
+      // Takes a phone number (e.g. 800-DIRECTV) from the first field,
+      // converts it to numbers (e.g. 800-3473288) and writes it to the second.
+      function decodePhone(e) {
+        if (e.keyCode != 13) return; // The Enter key triggers the decoder.
+        
+        // Get the first two input fields from the HTML document.
+        var els = document.getElementsByTagName('input'),
+            input = els[0], output = els[1], phone = input.value;
+        
+        // Do the replacement.
+        for (var c in charMap)
+          phone = phone.replace(new RegExp(c, 'gi'), charMap[c]);
+        
+        // Save the result into the second field.
+        output.value = phone;
+      }
+    </script>
+  </body>
+</html>
