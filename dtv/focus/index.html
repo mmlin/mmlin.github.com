@@ -34,7 +34,7 @@
       
       function startCall() {
         if (!document.hasFocus()) {
-          window.focus();
+          //window.focus();
           setTimeout(flashTitle, 0); // Defer until after the window.focus event.
           showPopup()
         }
@@ -42,11 +42,15 @@
       
       function showPopup() {
         // Show the popup notification.
-        var win = window.open('', 'startcall', 'toolbar=no,height=175,width=800');
+        var win = window.open('', 'startcall', 'location=no,toolbar=no,height=175,width=800');
         win.document.body.style.fontFamily = 'Helvetica, sans-serif';
         win.document.body.style.padding = '50px';
         win.document.body.innerHTML = "<h2 style='text-align:center'>You've got a call at " + new Date + "</h2>";
-        win.document.title = 'New Call | Sales CRM'
+        win.document.title = 'New Call | Sales CRM';
+        
+        setTimeout(function() {
+          win.close();
+        }, 2500);
       }
       
     </script>
