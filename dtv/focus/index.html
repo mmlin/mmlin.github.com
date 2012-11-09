@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sales CRM</title>
+  </head>
+  <body>
+    <script>
+      var timer = null;
+
+      setInterval(startCall, 5000);
+      
+      window.onfocus = function() {
+        cancelFlashTitle();
+      }
+      
+      function flashTitle() {
+        if (timer) return;
+        
+        document.title = "You've got a call...";
+        var showDefault = true;
+        timer = setInterval(function() {
+          document.title = showDefault ? "Sales CRM" : "You've got a call...";
+          showDefault = !showDefault;
+        }, 2000);
+      }
+      
+      function cancelFlashTitle() {
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+        document.title = "Sales CRM";
+      }
+      
+      function startCall() {
+        if (!document.hasFocus()) {
+          window.focus();
+          setTimeout(flashTitle, 0); // Defer until after the window.focus event.
+          showPopup()
+        }
+      }
+      
+      function showPopup() {
+        // Show the popup notification.
+        var win = window.open('', 'startcall', 'toolbar=no,height=175,width=800');
+        win.document.body.style.fontFamily = 'Helvetica, sans-serif';
+        win.document.body.style.padding = '50px';
+        win.document.body.innerHTML = "<h2 style='text-align:center'>You've got a call at " + new Date + "</h2>";
+        win.document.title = 'New Call | Sales CRM'
+      }
+      
+    </script>
+  </body>
+</html>
