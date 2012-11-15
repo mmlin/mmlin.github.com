@@ -3,8 +3,8 @@
  *
 	$('.my-placeholder').loginpanel({
 		url: '/my/callback/url/',
-		success: function() {...};
-		failure: function(err) {...};
+		success: function() {...},
+		failure: function(err) {...}
 	});
  *
  * It expects the URL to return this for a success:
