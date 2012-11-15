@@ -1,0 +1,50 @@
+/* Login Panel */
+
+.ux-login-panel {
+	background-color: #fff;
+	border-radius: 5px;
+	box-shadow: 0 0 15px 0 #939393;
+	padding: 2em;
+}
+
+.ux-login-panel .err {
+	background-color: #fdd;
+	border: 1px solid #ecc;
+	box-sizing: border-box;
+	color: #d00;
+	display: none;
+	margin-bottom: 1em;
+	padding: 0.5em;
+	width: 100%;
+}
+
+.ux-login-panel label {
+	display: block;
+}
+
+.ux-login-panel > input {
+	box-sizing: border-box;
+	font-size: 16px;
+	margin-bottom: 1em;
+	padding: 3px 5px;
+	width: 100%;
+}
+
+.ux-login-panel .submit {
+	text-align: right;
+}
+
+.ux-login-panel .submit input {
+	background-color: #2b7cab;
+	border: 0;
+	border-radius: 4px;
+	color: #fff;
+	font-size: 14px;
+	font-weight: bold;
+	padding: 8px 16px;
+}
+
+.ux-login-panel .submit input:hover {
+	background-color: #3291c8;
+	cursor: pointer;
+}

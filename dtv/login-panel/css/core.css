@@ -1,0 +1,24 @@
+body {
+	background-color: #f0f0f0;
+	color: #393939;
+	font-family: Helvetica, sans-serif;
+	font-size: 14px;
+	margin: 0;
+	padding: 0;
+}
+
+
+/* Login Page */
+
+.login-page {
+	left: 50%;
+	position: absolute;
+	top: 200px;
+}
+
+.login-panel {
+	height: 100%;
+	left: -50%;
+	position: relative;
+	width: 300px;
+}
