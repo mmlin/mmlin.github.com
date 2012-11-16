@@ -4,15 +4,9 @@
 
 	module('LoginPanel.js', {
 		setup: function() {
-			$panel = $('<div id="login-panel">');
-			$panel.appendTo(document.body);
+			$panel = $('#login-panel');
 			$panel.loginpanel();
 		},
-
-		teardown: function() {
-			$panel.loginpanel('destroy');
-			$panel.remove();
-		}
 	});
 
 	asyncTest('Responds correctly to success response', function() {
@@ -56,6 +50,30 @@
 			start();
 		});
 		popAndEnter($panel, 'mike', 'p4ssw0rd', 'password');
+	});
+
+	// Whitebox testing - the private method `valid`.
+	test('Usernames consist of numbers, letters, underscores, and dots', function() {	
+		var widget = $panel.data('loginpanel');
+		ok(widget.valid('mike', 'p4ssw0rd'), 'A good username and password');
+		ok(widget.valid('mike.m.lin', 'p4ssw0rd'), 'Dots are OK');
+		ok(widget.valid('mike212', 'p4ssw0rd'), 'Numbers are OK');
+		ok(!widget.valid('', 'p4ssw0rd'), 'Username is required');
+		ok(!widget.valid('cas$h', 'p4ssw0rd'), 'Special characters not allowed');
+		ok(widget.valid(' mike   ', 'p4ssw0rd'), 'Leading and trailing whitespace is ignored');
+		ok(!widget.valid(' ', 'p4ssw0rd'), 'All whitespace is still considered empty');
+		ok(!widget.valid('汉字/漢字', 'p4ssw0rd'), 'Chinese characters are not OK');
+	});
+
+	// Whitebox testing - the private method `valid`.
+	test('Passwords must be 6 characters minimum', function() {	
+		var widget = $panel.data('loginpanel');
+		ok(widget.valid('mike', 'p4ssw0rd'), 'A good username and password');
+		ok(!widget.valid('mike', ''), 'Password is required');
+		ok(!widget.valid('mike', '2tiny'), 'Password cannot be less than six chars');
+		ok(widget.valid('mike', 'okFine'), 'Six chars is OK');
+		ok(widget.valid('mike', 'pass word'), 'Spaces are OK');
+		ok(widget.valid('mike', '      '), 'All spaces are OK');
 	});
 
 	test('Invalid usernames are not even sent to the server', function() {
