@@ -13,6 +13,27 @@
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
 		<script src='js/ux/LoginPanel.js'></script>
-		<script src='js/index.js'></script>
+		<script>
+$(function() {
+
+	// A limited stand in for console.log when missing.
+	window.console = window.console || {
+		log: function(msg) {
+			alert(msg);
+		}
+	};
+
+	$('.login-panel').loginpanel({
+		url: 'mock/login_success.json',
+		success: function() {
+			console.log("The success callback was triggered.", arguments);
+		},
+
+		failure: function() {
+			console.log("The failure callback was triggered.", arguments);
+		}
+	});
+});
+		</script>
 	</body>
 </html>
